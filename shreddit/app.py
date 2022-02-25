@@ -5,39 +5,25 @@ import yaml
 import logging
 import os
 import pkg_resources
-from appdirs import user_config_dir
 from shreddit import default_config
 from shreddit.shredder import Shredder
 
+CONFIG_FILE_PATH = "/app/config/shreddit.yml"
+
+
+def generate_empty_config(path: str):
+    print("Writing shreddit.yml file...")
+    with open(path, "wb") as f_out:
+        f_out.write(pkg_resources.resource_string("shreddit", "shreddit.yml.example"))
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Command-line frontend to the shreddit library.")
-    parser.add_argument("-c", "--config", help="Config file to use instead of the default shreddit.yml")
-    parser.add_argument("-g", "--generate-configs", help="Write shreddit and praw config files to current directory.",
-                        action="store_true")
-    args = parser.parse_args()
-
-    if args.generate_configs:
-        if not os.path.isfile("shreddit.yml"):
-            print("Writing shreddit.yml file...")
-            with open("shreddit.yml", "wb") as fout:
-                fout.write(pkg_resources.resource_string("shreddit", "shreddit.yml.example"))
+    if not os.path.isfile(CONFIG_FILE_PATH):
+        print("No shreddit configuration file was found or provided.")
+        generate_empty_config(CONFIG_FILE_PATH)
         return
 
-    config_dir = user_config_dir("shreddit/shreddit.yml")
-
-    if args.config:
-        config_filename = args.config
-    elif os.path.exists(config_dir):
-        config_filename = config_dir
-    else:
-        config_filename = "shreddit.yml"
-
-    if not os.path.isfile(config_filename):
-        print("No shreddit configuration file was found or provided. Run this script with -g to generate one.")
-        return
-
-    with open(config_filename) as fh:
+    with open(CONFIG_FILE_PATH) as fh:
         # Not doing a simple update() here because it's preferable to only set attributes that are "whitelisted" as
         # configuration options in the form of default values.
         user_config = yaml.safe_load(fh)

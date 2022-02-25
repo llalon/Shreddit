@@ -18,6 +18,7 @@ class Shredder(object):
     """This class stores state for configuration, API objects, logging, etc. It exposes a shred() method that
     application code can call to start it.
     """
+
     def __init__(self, config):
         logging.basicConfig()
         self._logger = logging.getLogger("shreddit")
@@ -49,7 +50,6 @@ class Shredder(object):
             for subreddit in multireddit.subreddits:
                 self._blacklist.add(str(subreddit).lower())
 
-
         self._logger.info("Deleting ALL items before {}".format(self._nuke_cutoff))
         self._logger.info("Deleting items not whitelisted until {}".format(self._recent_cutoff))
         self._logger.info("Ignoring ALL items after {}".format(self._recent_cutoff))
@@ -77,12 +77,12 @@ class Shredder(object):
     def _connect(self):
         try:
             self._r = praw.Reddit(
-                    client_id=os.environ.get("REDDIT_CLIENT_ID"),
-                    client_secret=os.environ.get("REDDIT_CLIENT_SECRET"),
-                    password=os.environ.get("REDDIT_PASSWORD"),
-                    user_agent="python:shreddit:v6.0.4",
-                    username=os.environ.get("REDDIT_USERNAME"),
-                    check_for_updates=False)
+                client_id=os.environ.get("REDDIT_CLIENT_ID"),
+                client_secret=os.environ.get("REDDIT_CLIENT_SECRET"),
+                password=os.environ.get("REDDIT_PASSWORD"),
+                user_agent="python:shreddit:v6.0.4",
+                username=os.environ.get("REDDIT_USERNAME"),
+                check_for_updates=False)
 
             self._logger.info("Logged in as {user}.".format(user=self._r.user.me()))
         except ResponseException:
