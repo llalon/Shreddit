@@ -15,7 +15,6 @@ def main():
     parser.add_argument("-c", "--config", help="Config file to use instead of the default shreddit.yml")
     parser.add_argument("-g", "--generate-configs", help="Write shreddit and praw config files to current directory.",
                         action="store_true")
-    parser.add_argument("-u", "--user", help="User section from praw.ini if not default", default="default")
     args = parser.parse_args()
 
     if args.generate_configs:
@@ -23,10 +22,6 @@ def main():
             print("Writing shreddit.yml file...")
             with open("shreddit.yml", "wb") as fout:
                 fout.write(pkg_resources.resource_string("shreddit", "shreddit.yml.example"))
-        if not os.path.isfile("praw.ini"):
-            print("Writing praw.ini file...")
-            with open("praw.ini", "wb") as fout:
-                fout.write(pkg_resources.resource_string("shreddit", "praw.ini.example"))
         return
 
     config_dir = user_config_dir("shreddit/shreddit.yml")
@@ -50,7 +45,7 @@ def main():
             if option in user_config:
                 default_config[option] = user_config[option]
 
-    shredder = Shredder(default_config, args.user)
+    shredder = Shredder(default_config)
     shredder.shred()
 
 

@@ -18,13 +18,12 @@ class Shredder(object):
     """This class stores state for configuration, API objects, logging, etc. It exposes a shred() method that
     application code can call to start it.
     """
-    def __init__(self, config, user):
+    def __init__(self, config):
         logging.basicConfig()
         self._logger = logging.getLogger("shreddit")
         self._logger.setLevel(level=logging.DEBUG if config.get("verbose", True) else logging.INFO)
         self.__dict__.update({"_{}".format(k): config[k] for k in config})
-        
-        self._user = user
+
         self._connect()
 
         if self._save_directory:
@@ -77,7 +76,14 @@ class Shredder(object):
 
     def _connect(self):
         try:
-            self._r = praw.Reddit(self._user, check_for_updates=False, user_agent="python:shreddit:v6.0.4")
+            self._r = praw.Reddit(
+                    client_id=os.environ.get("REDDIT_CLIENT_ID"),
+                    client_secret=os.environ.get("REDDIT_CLIENT_SECRET"),
+                    password=os.environ.get("REDDIT_PASSWORD"),
+                    user_agent="python:shreddit:v6.0.4",
+                    username=os.environ.get("REDDIT_USERNAME"),
+                    check_for_updates=False)
+
             self._logger.info("Logged in as {user}.".format(user=self._r.user.me()))
         except ResponseException:
             raise ShredditError("Bad OAuth credentials")
